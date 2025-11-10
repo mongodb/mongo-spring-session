@@ -1,0 +1,89 @@
+# Copyright 2025-present MongoDB, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[versions]
+spring-session = "4.0.0-RC1"
+spring-data = "2025.0.5"
+spring-security = "6.5.6"
+spring-framework = "6.2.12"
+jackson = "2.18.4"
+findbugs = "3.0.2"
+project-reactor = "2025.0.0"
+mongodb-driver = "5.6.1"
+
+# Test libraries
+assertj = "3.27.3"
+junit = "5.12.1"
+hamcrest = "3.0"
+jakarta-websocket = "2.1.1"
+jakarta-servlet-api = "6.0.0"
+mockito = "5.16.1"
+logback = "1.5.18"
+testcontainers = "2.0.1"
+
+plugin-spotless = "7.0.2"
+plugin-palantir = "2.58.0"
+plugin-ktfmt = "0.54"
+
+[libraries]
+spring-session-bom = { module = "org.springframework.session:spring-session-bom", version.ref = "spring-session" }
+spring-session-core = { module = "org.springframework.session:spring-session-core" }
+spring-data-bom = { module = "org.springframework.data:spring-data-bom", version.ref = "spring-data" }
+spring-data-mongodb = { module = "org.springframework.data:spring-data-mongodb" }
+jackson-bom =  { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+jackson-databind =  { module = "com.fasterxml.jackson.core:jackson-databind" }
+findbugs-jsr = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs" }
+
+spring-security-bom = { module = "org.springframework.security:spring-security-bom", version.ref = "spring-security" }
+spring-security-core = { module = "org.springframework.security:spring-security-core" }
+
+project-reactor-bom = { module = "io.projectreactor:reactor-bom", version.ref = "project-reactor" }
+project-reactor-core = { module = "io.projectreactor:reactor-core" }
+project-reactor-test = { module = "io.projectreactor:reactor-test" }
+
+mongodb-driver-bom = { module = "org.mongodb:mongodb-driver-bom", version.ref = "mongodb-driver" }
+mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core" }
+mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync" }
+mongodb-driver-reactive-streams = { module = "org.mongodb:mongodb-driver-reactivestreams" }
+
+# Test libraries
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "mockito" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+mockito-core = { module = "org.mockito:mockito-core" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+
+jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
+jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet-api" }
+
+spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "spring-framework" }
+spring-security-config = { module = "org.springframework.security:spring-security-config" }
+spring-security-web =  { module = "org.springframework.security:spring-security-web" }
+spring-test =  { module = "org.springframework:spring-test" }
+spring-web =  { module = "org.springframework:spring-web" }
+spring-webflux =  { module = "org.springframework:spring-webflux" }
+testcontainers-mongodb = { module = "org.testcontainers:testcontainers-mongodb",  version.ref="testcontainers"  }
+
+[bundles]
+testing = ["junit-jupiter", "assertj", "hamcrest", "mockito-core", "mockito-junit-jupiter"]
+jakarta = ["jakarta-servlet-api", "jakarta-websocket-client-api", "jakarta-websocket-api"]
+spring-test = ["spring-security-config", "spring-security-web", "spring-test", "spring-web", "spring-webflux"]
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "plugin-spotless" }
