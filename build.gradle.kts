@@ -15,6 +15,7 @@
  */
 
 import com.adarshr.gradle.testlogger.theme.ThemeType
+import net.ltgt.gradle.errorprone.errorprone
 
 buildscript {
     repositories {
@@ -30,6 +31,7 @@ plugins {
     id("maven-publish")
     alias(libs.plugins.spotless)
     alias(libs.plugins.test.logger)
+    alias(libs.plugins.errorprone)
 }
 
 description = "Spring Session and Spring MongoDB integration"
@@ -154,6 +156,8 @@ dependencies {
     // `warning: unknown enum constant When.MAYBE`
     //   `reason: class file for javax.annotation.meta.When not found`.
     compileOnly(libs.findbugs.jsr)
+    errorprone(libs.nullaway)
+    errorprone(libs.google.errorprone.core)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(platform(libs.mockito.bom))
@@ -205,5 +209,19 @@ spotless {
         trimTrailingWhitespace()
         leadingTabsToSpaces()
         endWithNewline()
+    }
+}
+
+// Configure errorprone
+tasks.withType<JavaCompile>().configureEach {
+    if (name.endsWith("TestJava")) {
+        options.errorprone.isEnabled = false
+    } else {
+        options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
+        options.errorprone {
+            disableWarningsInGeneratedCode = true
+            option("NullAway:AnnotatedPackages", "org.mongodb.spring.session")
+            error("NullAway")
+        }
     }
 }

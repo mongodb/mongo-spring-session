@@ -17,6 +17,8 @@
 
 package org.mongodb.spring.session;
 
+import static java.lang.String.format;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.time.Duration;
@@ -109,6 +111,7 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     protected MongoSession convert(Document sessionWrapper) {
 
         Object maxInterval = sessionWrapper.getOrDefault(MAX_INTERVAL, this.maxInactiveInterval);
@@ -116,23 +119,25 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
         Duration maxIntervalDuration =
                 (maxInterval instanceof Duration) ? (Duration) maxInterval : Duration.parse(maxInterval.toString());
 
-        MongoSession session = new MongoSession(sessionWrapper.getString(ID), maxIntervalDuration.getSeconds());
+        MongoSession session = new MongoSession(sessionWrapper.getString(ID), maxIntervalDuration.toSeconds());
 
         Object creationTime = sessionWrapper.get(CREATION_TIME);
         if (creationTime instanceof Instant) {
             session.setCreationTime(((Instant) creationTime).toEpochMilli());
         } else if (creationTime instanceof Date) {
-            session.setCreationTime(((Date) creationTime).getTime());
+            session.setCreationTime(((Date) creationTime).toInstant().toEpochMilli());
         }
 
         Object lastAccessedTime = sessionWrapper.get(LAST_ACCESSED_TIME);
         if (lastAccessedTime instanceof Instant) {
             session.setLastAccessedTime((Instant) lastAccessedTime);
         } else if (lastAccessedTime instanceof Date) {
-            session.setLastAccessedTime(Instant.ofEpochMilli(((Date) lastAccessedTime).getTime()));
+            session.setLastAccessedTime(((Date) lastAccessedTime).toInstant());
         }
 
-        session.setExpireAt((Date) sessionWrapper.get(EXPIRE_AT_FIELD_NAME));
+        Object expires = sessionWrapper.get(EXPIRE_AT_FIELD_NAME);
+        Assert.notNull(expires, () -> format("%s missing from session.", EXPIRE_AT_FIELD_NAME));
+        session.setExpireAt((Date) expires);
 
         deserializeAttributes(sessionWrapper, session);
 

@@ -36,6 +36,7 @@ import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.lang.Nullable;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -43,6 +44,7 @@ import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
@@ -62,19 +64,20 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 
     private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
-    private String collectionName;
+    @Nullable private String collectionName;
 
-    private StringValueResolver embeddedValueResolver;
+    @Nullable private StringValueResolver embeddedValueResolver;
 
-    private List<SessionRepositoryCustomizer<MongoIndexedSessionRepository>> sessionRepositoryCustomizers;
+    @Nullable private List<SessionRepositoryCustomizer<MongoIndexedSessionRepository>> sessionRepositoryCustomizers;
 
-    private ClassLoader classLoader;
+    @Nullable private ClassLoader classLoader;
 
-    private IndexResolver<Session> indexResolver;
+    @Nullable private IndexResolver<Session> indexResolver;
 
     private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
     @Bean
+    @SuppressWarnings("NullAway")
     public MongoIndexedSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
 
         MongoIndexedSessionRepository repository = new MongoIndexedSessionRepository(mongoOperations);
@@ -104,6 +107,7 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
         }
         repository.setSessionIdGenerator(this.sessionIdGenerator);
 
+        Assert.notNull(this.sessionRepositoryCustomizers, "SessionRepositoryCustomizers not initialized.");
         this.sessionRepositoryCustomizers.forEach(
                 (sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
 
@@ -119,10 +123,13 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
     }
 
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
         setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
     }
 
+    @Override
+    @SuppressWarnings("NullAway")
     public void setImportMetadata(AnnotationMetadata importMetadata) {
 
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(
@@ -135,6 +142,7 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 
         String collectionNameValue = (attributes != null) ? attributes.getString("collectionName") : "";
         if (StringUtils.hasText(collectionNameValue)) {
+            Assert.notNull(this.embeddedValueResolver, "EmbeddedValueResolver not initialized.");
             this.collectionName = this.embeddedValueResolver.resolveStringValue(collectionNameValue);
         }
     }

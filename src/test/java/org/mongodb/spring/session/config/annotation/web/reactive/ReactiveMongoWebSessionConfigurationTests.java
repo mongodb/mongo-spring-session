@@ -155,7 +155,7 @@ class ReactiveMongoWebSessionConfigurationTests {
 
         verify(operations, times(1)).indexOps((String) any());
         verify(indexOperations, times(1)).getIndexInfo();
-        verify(indexOperations, times(1)).ensureIndex(any());
+        verify(indexOperations, times(1)).createIndex(any());
     }
 
     @Test

@@ -37,6 +37,7 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.lang.Nullable;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -44,6 +45,7 @@ import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
@@ -58,22 +60,22 @@ import org.springframework.util.StringValueResolver;
 public class ReactiveMongoWebSessionConfiguration
         implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
-    private AbstractMongoSessionConverter mongoSessionConverter;
+    @Nullable private AbstractMongoSessionConverter mongoSessionConverter;
 
     private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
-    private String collectionName;
+    @Nullable private String collectionName;
 
-    private StringValueResolver embeddedValueResolver;
+    @Nullable private StringValueResolver embeddedValueResolver;
 
     private List<ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository>> sessionRepositoryCustomizers;
 
     @Autowired(required = false)
-    private MongoOperations mongoOperations;
+    @Nullable private MongoOperations mongoOperations;
 
-    private ClassLoader classLoader;
+    @Nullable private ClassLoader classLoader;
 
-    private IndexResolver<Session> indexResolver;
+    @Nullable private IndexResolver<Session> indexResolver;
 
     private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -126,6 +128,7 @@ public class ReactiveMongoWebSessionConfiguration
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void setImportMetadata(AnnotationMetadata importMetadata) {
 
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(
@@ -138,6 +141,7 @@ public class ReactiveMongoWebSessionConfiguration
 
         String collectionNameValue = (attributes != null) ? attributes.getString("collectionName") : "";
         if (StringUtils.hasText(collectionNameValue)) {
+            Assert.notNull(this.embeddedValueResolver, "EmbeddedValueResolver not initialized.");
             this.collectionName = this.embeddedValueResolver.resolveStringValue(collectionNameValue);
         }
     }
@@ -161,11 +165,12 @@ public class ReactiveMongoWebSessionConfiguration
     }
 
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
         setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
     }
 
-    public String getCollectionName() {
+    @Nullable public String getCollectionName() {
         return this.collectionName;
     }
 
