@@ -30,6 +30,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SessionIdGenerator;
@@ -72,9 +73,9 @@ public class ReactiveMongoSessionRepository
     private AbstractMongoSessionConverter mongoSessionConverter =
             new JdkMongoSessionConverter(this.defaultMaxInactiveInterval);
 
-    private MongoOperations blockingMongoOperations;
+    @Nullable private MongoOperations blockingMongoOperations;
 
-    private ApplicationEventPublisher eventPublisher;
+    @Nullable private ApplicationEventPublisher eventPublisher;
 
     private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -173,11 +174,14 @@ public class ReactiveMongoSessionRepository
     }
 
     private void publishEvent(ApplicationEvent event) {
-
-        try {
-            this.eventPublisher.publishEvent(event);
-        } catch (Throwable ex) {
-            logger.error("Error publishing " + event + ".", ex);
+        if (this.eventPublisher == null) {
+            logger.error("Error publishing " + event + ". No event publisher set.");
+        } else {
+            try {
+                this.eventPublisher.publishEvent(event);
+            } catch (Throwable ex) {
+                logger.error("Error publishing " + event + ".", ex);
+            }
         }
     }
 
@@ -200,6 +204,7 @@ public class ReactiveMongoSessionRepository
      * @deprecated since 3.0.0, in favor of {@link #setDefaultMaxInactiveInterval(Duration)}
      */
     @Deprecated(since = "3.0.0")
+    @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer defaultMaxInactiveInterval) {
         setDefaultMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
     }

@@ -52,8 +52,6 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
     private static final Log LOG = LogFactory.getLog(AbstractMongoSessionConverter.class);
 
-    private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
     private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
     /**
@@ -83,24 +81,38 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
         LOG.info("Creating TTL index on field " + EXPIRE_AT_FIELD_NAME);
 
-        sessionCollectionIndexes.ensureIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC)
-                .named(EXPIRE_AT_FIELD_NAME)
-                .expire(0));
+        try {
+            sessionCollectionIndexes.createIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC)
+                    .named(EXPIRE_AT_FIELD_NAME)
+                    .expire(0));
+        } catch (Exception e) {
+            // Handle the case where the index already exists (error code 85 for MongoCommandException)
+            if (e instanceof com.mongodb.MongoCommandException
+                    && ((com.mongodb.MongoCommandException) e).getErrorCode() == 85) {
+                LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (caught during creation)");
+            } else if (e instanceof org.springframework.dao.DuplicateKeyException) {
+                LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (DuplicateKeyException)");
+            } else {
+                // Unexpected error, rethrow
+                throw e;
+            }
+        }
     }
 
-    protected String extractPrincipal(MongoSession expiringSession) {
+    @Nullable protected String extractPrincipal(MongoSession expiringSession) {
 
         return this.indexResolver
                 .resolveIndexesFor(expiringSession)
                 .get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
     }
 
+    @Override
     public Set<ConvertiblePair> getConvertibleTypes() {
-
         return Collections.singleton(new ConvertiblePair(DBObject.class, MongoSession.class));
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     @Nullable public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 
         if (source == null) {
@@ -118,7 +130,7 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
     protected abstract DBObject convert(MongoSession session);
 
-    protected abstract MongoSession convert(Document sessionWrapper);
+    @Nullable protected abstract MongoSession convert(Document sessionWrapper);
 
     public void setIndexResolver(IndexResolver<Session> indexResolver) {
         Assert.notNull(indexResolver, "indexResolver must not be null");

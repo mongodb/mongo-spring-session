@@ -77,17 +77,18 @@ public class MongoIndexedSessionRepository
     private AbstractMongoSessionConverter mongoSessionConverter =
             new JdkMongoSessionConverter(this.defaultMaxInactiveInterval);
 
-    private ApplicationEventPublisher eventPublisher;
+    @Nullable private ApplicationEventPublisher eventPublisher;
 
-    private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+    @Nullable private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
     public MongoIndexedSessionRepository(MongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public MongoSession createSession() {
-
+        Assert.notNull(this.sessionIdGenerator, "sessionIdGenerator not initialized.");
         MongoSession session = new MongoSession(this.sessionIdGenerator, this.defaultMaxInactiveInterval.toSeconds());
 
         publishEvent(new SessionCreatedEvent(this, session));
@@ -103,7 +104,8 @@ public class MongoIndexedSessionRepository
     }
 
     @Override
-    @Nullable public MongoSession findById(String id) {
+    @Nullable @SuppressWarnings("NullAway")
+    public MongoSession findById(String id) {
 
         Document sessionWrapper = findSession(id);
 
@@ -119,6 +121,7 @@ public class MongoIndexedSessionRepository
                 deleteById(id);
                 return null;
             }
+            Assert.notNull(this.sessionIdGenerator, "sessionIdGenerator not initialized.");
             session.setSessionIdGenerator(this.sessionIdGenerator);
         }
 
@@ -133,8 +136,9 @@ public class MongoIndexedSessionRepository
      * @return sessions map
      */
     @Override
+    @SuppressWarnings("NullAway")
     public Map<String, MongoSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-
+        Assert.notNull(this.sessionIdGenerator, "sessionIdGenerator not initialized.");
         return Optional.ofNullable(this.mongoSessionConverter.getQueryForIndex(indexName, indexValue))
                 .map((query) -> this.mongoOperations.find(query, Document.class, this.collectionName))
                 .orElse(Collections.emptyList())
@@ -173,11 +177,14 @@ public class MongoIndexedSessionRepository
     }
 
     private void publishEvent(ApplicationEvent event) {
-
-        try {
-            this.eventPublisher.publishEvent(event);
-        } catch (Throwable ex) {
-            logger.error("Error publishing " + event + ".", ex);
+        if (this.eventPublisher == null) {
+            logger.error("Error publishing " + event + ". No event publisher set.");
+        } else {
+            try {
+                this.eventPublisher.publishEvent(event);
+            } catch (Throwable ex) {
+                logger.error("Error publishing " + event + ".", ex);
+            }
         }
     }
 
@@ -188,8 +195,7 @@ public class MongoIndexedSessionRepository
      * @param defaultMaxInactiveInterval the default maxInactiveInterval
      */
     public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
-        org.springframework.util.Assert.notNull(
-                defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
+        Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
         this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
     }
 
@@ -201,6 +207,7 @@ public class MongoIndexedSessionRepository
      * @deprecated since 3.0.0, in favor of {@link #setDefaultMaxInactiveInterval(Duration)}
      */
     @Deprecated(since = "3.0.0")
+    @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer defaultMaxInactiveInterval) {
         setDefaultMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
     }

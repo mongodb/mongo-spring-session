@@ -80,6 +80,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
         this.objectMapper = objectMapper;
     }
 
+    @Override
     @Nullable protected Query getQueryForIndex(String indexName, Object indexValue) {
 
         if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
@@ -145,6 +146,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
     }
 
     /** Used to whitelist {@link MongoSession} for {@link SecurityJackson2Modules}. */
+    @SuppressWarnings("unused")
     private static class MongoSessionMixin {
 
         @JsonCreator
@@ -160,6 +162,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
     }
 
     private static class MongoIdNamingStrategy extends PropertyNamingStrategies.NamingBase {
+        private static final long serialVersionUID = 2L;
 
         @Override
         public String translate(String propertyName) {

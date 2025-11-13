@@ -133,7 +133,7 @@ public final class MongoSession implements Session {
     }
 
     @Override
-    @Nullable @SuppressWarnings("unchecked")
+    @Nullable @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     public <T> T getAttribute(String attributeName) {
         return (T) this.attrs.get(coverDot(attributeName));
     }
@@ -185,12 +185,12 @@ public final class MongoSession implements Session {
 
     @Override
     public void setMaxInactiveInterval(Duration interval) {
-        this.intervalSeconds = interval.getSeconds();
+        this.intervalSeconds = interval.toSeconds();
     }
 
     @Override
     public boolean isExpired() {
-        return this.intervalSeconds >= 0 && new Date().after(this.expireAt);
+        return this.intervalSeconds >= 0 && Instant.now().isAfter(expireAt.toInstant());
     }
 
     @Override
