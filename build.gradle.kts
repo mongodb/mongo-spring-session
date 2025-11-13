@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.gradle.api.tasks.testing.logging.TestLogEvent
+import com.adarshr.gradle.testlogger.theme.ThemeType
 
 buildscript {
     repositories {
@@ -29,6 +29,7 @@ plugins {
     id("java-library")
     id("maven-publish")
     alias(libs.plugins.spotless)
+    alias(libs.plugins.test.logger)
 }
 
 description = "Spring Session and Spring MongoDB integration"
@@ -94,7 +95,34 @@ tasks.check { dependsOn(integrationTestTask) }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-    testLogging { events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED) }
+
+    // Pass any `org.mongodb.*` system settings
+    systemProperties =
+        System.getProperties()
+            .map { (key, value) -> Pair(key.toString(), value) }
+            .filter { it.first.startsWith("org.mongodb.") }
+            .toMap()
+}
+
+// Pretty test output
+testlogger {
+    theme = ThemeType.STANDARD
+    showExceptions = true
+    showStackTraces = true
+    showFullStackTraces = false
+    showCauses = true
+    slowThreshold = 2000
+    showSummary = true
+    showSimpleNames = false
+    showPassed = true
+    showSkipped = true
+    showFailed = true
+    showOnlySlow = false
+    showStandardStreams = false
+    showPassedStandardStreams = true
+    showSkippedStandardStreams = true
+    showFailedStandardStreams = true
+    logLevel = LogLevel.LIFECYCLE
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,9 +155,6 @@ dependencies {
     //   `reason: class file for javax.annotation.meta.When not found`.
     compileOnly(libs.findbugs.jsr)
 
-    //    add("integrationTestCompile", "org.testcontainers:mongodb")
-    //
-
     testImplementation(platform(libs.junit.bom))
     testImplementation(platform(libs.mockito.bom))
     testImplementation(platform(libs.spring.framework.bom))
@@ -141,8 +166,6 @@ dependencies {
     testImplementation(libs.project.reactor.test)
 
     testRuntimeOnly(libs.junit.platform.launcher)
-
-    "integrationTestImplementation"(libs.testcontainers.mongodb)
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

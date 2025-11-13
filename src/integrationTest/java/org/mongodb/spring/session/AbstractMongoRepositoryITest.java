@@ -18,6 +18,8 @@
 package org.mongodb.spring.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mongodb.spring.session.MongoSessionUtils.DEFAULT_DATABASE_NAME;
+import static org.mongodb.spring.session.MongoSessionUtils.getConnectionString;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -37,7 +39,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.testcontainers.containers.MongoDBContainer;
 
 /**
  * Abstract base class for {@link MongoIndexedSessionRepository} tests.
@@ -387,21 +388,10 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 
     protected static class BaseConfig {
 
-        private static final String DOCKER_IMAGE = "mongo:5.0.11";
-
         @Bean
-        public MongoDBContainer mongoDbContainer() {
-            MongoDBContainer mongoDbContainer = new MongoDBContainer(DOCKER_IMAGE);
-            mongoDbContainer.start();
-            return mongoDbContainer;
-        }
-
-        @Bean
-        public MongoOperations mongoOperations(MongoDBContainer mongoContainer) {
-
-            MongoClient mongo = MongoClients.create(
-                    "mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
-            return new MongoTemplate(mongo, "test");
+        public MongoOperations mongoOperations() {
+            MongoClient mongo = MongoClients.create(getConnectionString());
+            return new MongoTemplate(mongo, DEFAULT_DATABASE_NAME);
         }
     }
 }

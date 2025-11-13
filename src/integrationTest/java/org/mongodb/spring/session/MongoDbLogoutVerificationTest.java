@@ -17,6 +17,9 @@
 
 package org.mongodb.spring.session;
 
+import static org.mongodb.spring.session.MongoSessionUtils.DEFAULT_DATABASE_NAME;
+import static org.mongodb.spring.session.MongoSessionUtils.getConnectionString;
+
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import java.net.URI;
@@ -48,7 +51,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.testcontainers.containers.MongoDBContainer;
 import reactor.test.StepVerifier;
 
 /** @author Greg Turnquist */
@@ -186,21 +188,10 @@ class MongoDbLogoutVerificationTest {
     @EnableMongoWebSession
     static class Config {
 
-        private static final String DOCKER_IMAGE = "mongo:5.0.11";
-
         @Bean
-        MongoDBContainer mongoDbContainer() {
-            MongoDBContainer mongoDbContainer = new MongoDBContainer(DOCKER_IMAGE);
-            mongoDbContainer.start();
-            return mongoDbContainer;
-        }
-
-        @Bean
-        ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
-
-            MongoClient mongo = MongoClients.create(
-                    "mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
-            return new ReactiveMongoTemplate(mongo, "test");
+        ReactiveMongoOperations mongoOperations() {
+            MongoClient mongo = MongoClients.create(getConnectionString());
+            return new ReactiveMongoTemplate(mongo, DEFAULT_DATABASE_NAME);
         }
 
         @Bean

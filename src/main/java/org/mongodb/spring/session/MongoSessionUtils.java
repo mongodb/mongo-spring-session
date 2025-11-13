@@ -17,6 +17,7 @@
 
 package org.mongodb.spring.session;
 
+import com.mongodb.ConnectionString;
 import com.mongodb.DBObject;
 import org.bson.Document;
 import org.springframework.core.convert.TypeDescriptor;
@@ -28,6 +29,10 @@ import org.springframework.lang.Nullable;
  * @author Greg Turnquist
  */
 final class MongoSessionUtils {
+
+    private static final String DEFAULT_URI = "mongodb://localhost:27017";
+    private static final String URI_SYSTEM_PROPERTY_NAME = "org.mongodb.test.uri";
+    public static final String DEFAULT_DATABASE_NAME = "MongoSpringSessionTest";
 
     private MongoSessionUtils() {}
 
@@ -41,5 +46,10 @@ final class MongoSessionUtils {
 
         return (MongoSession) mongoSessionConverter.convert(
                 session, TypeDescriptor.valueOf(Document.class), TypeDescriptor.valueOf(MongoSession.class));
+    }
+
+    static ConnectionString getConnectionString() {
+        String connectionString = System.getProperty(URI_SYSTEM_PROPERTY_NAME, DEFAULT_URI);
+        return new ConnectionString(connectionString);
     }
 }

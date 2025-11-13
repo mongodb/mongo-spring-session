@@ -18,9 +18,13 @@ spring-data = "2025.0.5"
 spring-security = "6.5.6"
 spring-framework = "6.2.12"
 jackson = "2.18.4"
-findbugs = "3.0.2"
 project-reactor = "2025.0.0"
 mongodb-driver = "5.6.1"
+
+# Code verification libraries
+findbugs = "3.0.2"
+nullaway = "0.12.4"
+google-errorprone-core = "2.36.0"
 
 # Test libraries
 assertj = "3.27.3"
@@ -30,11 +34,11 @@ jakarta-websocket = "2.1.1"
 jakarta-servlet-api = "6.0.0"
 mockito = "5.16.1"
 logback = "1.5.18"
-testcontainers = "2.0.1"
 
 plugin-spotless = "7.0.2"
 plugin-palantir = "2.58.0"
 plugin-ktfmt = "0.54"
+plugin-test-logger = "4.0.0"
 
 [libraries]
 spring-session-bom = { module = "org.springframework.session:spring-session-bom", version.ref = "spring-session" }
@@ -43,7 +47,6 @@ spring-data-bom = { module = "org.springframework.data:spring-data-bom", version
 spring-data-mongodb = { module = "org.springframework.data:spring-data-mongodb" }
 jackson-bom =  { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jackson-databind =  { module = "com.fasterxml.jackson.core:jackson-databind" }
-findbugs-jsr = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs" }
 
 spring-security-bom = { module = "org.springframework.security:spring-security-bom", version.ref = "spring-security" }
 spring-security-core = { module = "org.springframework.security:spring-security-core" }
@@ -56,6 +59,11 @@ mongodb-driver-bom = { module = "org.mongodb:mongodb-driver-bom", version.ref = 
 mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core" }
 mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync" }
 mongodb-driver-reactive-streams = { module = "org.mongodb:mongodb-driver-reactivestreams" }
+
+# Code verification libraries
+findbugs-jsr = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs" }
+nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
+google-errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "google-errorprone-core" }
 
 # Test libraries
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -78,7 +86,6 @@ spring-security-web =  { module = "org.springframework.security:spring-security-
 spring-test =  { module = "org.springframework:spring-test" }
 spring-web =  { module = "org.springframework:spring-web" }
 spring-webflux =  { module = "org.springframework:spring-webflux" }
-testcontainers-mongodb = { module = "org.testcontainers:testcontainers-mongodb",  version.ref="testcontainers"  }
 
 [bundles]
 testing = ["junit-jupiter", "assertj", "hamcrest", "mockito-core", "mockito-junit-jupiter"]
@@ -87,3 +94,4 @@ spring-test = ["spring-security-config", "spring-security-web", "spring-test", "
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "plugin-spotless" }
+test-logger = { id = "com.adarshr.test-logger", version.ref = "plugin-test-logger" }
