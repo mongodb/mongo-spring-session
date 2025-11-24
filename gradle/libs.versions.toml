@@ -40,6 +40,8 @@ plugin-palantir = "2.58.0"
 plugin-ktfmt = "0.54"
 plugin-test-logger = "4.0.0"
 plugin-errorprone = "4.1.0"
+plugin-nexus-publish = "2.0.0"
+plugin-buildconfig = "5.5.4"
 
 [libraries]
 spring-session-bom = { module = "org.springframework.session:spring-session-bom", version.ref = "spring-session" }
@@ -97,3 +99,5 @@ spring-test = ["spring-security-config", "spring-security-web", "spring-test", "
 spotless = { id = "com.diffplug.spotless", version.ref = "plugin-spotless" }
 test-logger = { id = "com.adarshr.test-logger", version.ref = "plugin-test-logger" }
 errorprone = { id = "net.ltgt.errorprone", version.ref = "plugin-errorprone" }
+buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "plugin-buildconfig" }
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "plugin-nexus-publish" }

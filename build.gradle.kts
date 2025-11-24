@@ -15,6 +15,7 @@
  */
 
 import com.adarshr.gradle.testlogger.theme.ThemeType
+import java.time.Duration
 import net.ltgt.gradle.errorprone.errorprone
 
 buildscript {
@@ -29,6 +30,9 @@ plugins {
     id("idea")
     id("java-library")
     id("maven-publish")
+    id("signing")
+    alias(libs.plugins.buildconfig)
+    alias(libs.plugins.nexus.publish)
     alias(libs.plugins.spotless)
     alias(libs.plugins.test.logger)
     alias(libs.plugins.errorprone)
@@ -48,14 +52,24 @@ java {
     registerFeature("optional") { usingSourceSet(sourceSets["main"]) }
 }
 
-// Suppress POM warnings for the optional features (eg: optionalApi, optionalImplementation)
-// afterEvaluate {
-//    configurations
-//        .filter { it.name.startsWith("optional") }
-//        .forEach { optional ->
-//            publishing.publications.named<MavenPublication>("maven") { suppressPomMetadataWarningsFor(optional.name) }
-//        }
-// }
+tasks.withType<Javadoc> {
+    val standardDocletOptions = options as StandardJavadocDocletOptions
+    standardDocletOptions.apply {
+        author(true)
+        version(true)
+        encoding = "UTF-8"
+        charSet("UTF-8")
+        docEncoding("UTF-8")
+        addBooleanOption("html5", true)
+        addBooleanOption("-allow-script-in-comments", true)
+        links =
+            listOf(
+                "https://docs.oracle.com/en/java/javase/17/docs/api/",
+                "https://docs.spring.io/spring-session/docs/3.5.3/api/",
+                "https://docs.spring.io/spring-data/mongodb/docs/4.5.5/api/",
+                "https://docs.spring.io/spring-security/reference/6.5/api/java/")
+    }
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Integration Test
@@ -125,6 +139,16 @@ testlogger {
     showSkippedStandardStreams = true
     showFailedStandardStreams = true
     logLevel = LogLevel.LIFECYCLE
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Build Config
+
+buildConfig {
+    useJavaOutput()
+    packageName("org.mongodb.spring.session.internal")
+    buildConfigField("NAME", provider { project.name })
+    buildConfigField("VERSION", provider { "${project.version}" })
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,5 +247,160 @@ tasks.withType<JavaCompile>().configureEach {
             option("NullAway:AnnotatedPackages", "org.mongodb.spring.session")
             error("NullAway")
         }
+    }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Publishing
+
+val localBuildRepo: Provider<Directory> = project.layout.buildDirectory.dir("repo")
+
+tasks.named<Delete>("clean") { delete.add(localBuildRepo) }
+
+publishing {
+    repositories {
+        // publish to local build dir for testing
+        // `./gradlew publishMavenPublicationToLocalBuildRepository`
+        maven {
+            url = uri(localBuildRepo.get())
+            name = "LocalBuild"
+        }
+    }
+
+    publications {
+        create<MavenPublication>("mavenJava") {
+            groupId = "org.mongodb"
+            artifactId = "mongodb-spring-session"
+            from(components["java"])
+            pom {
+                name = "MongoDB Spring Session extension"
+                description = "An extension providing MongoDB support for Spring Session"
+                url = "https://www.mongodb.com/"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        name.set("Various")
+                        organization.set("MongoDB")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/mongodb/mongo-spring-session")
+                    connection.set("scm:https://github.com/mongodb/mongo-spring-session.git")
+                    developerConnection.set("scm:https://github.com/mongodb/mongo-spring-session.git")
+                }
+            }
+        }
+    }
+}
+
+// Suppress POM warnings for the optional features (eg: optionalApi, optionalImplementation)
+afterEvaluate {
+    configurations
+        .filter { it.name.startsWith("optional") }
+        .forEach { optional ->
+            publishing.publications.named<MavenPublication>("mavenJava") {
+                suppressPomMetadataWarningsFor(optional.name)
+            }
+        }
+}
+
+// Artifact signing
+signing {
+    val signingKey: String? = providers.gradleProperty("signingKey").getOrNull()
+    val signingPassword: String? = providers.gradleProperty("signingPassword").getOrNull()
+    if (signingKey != null && signingPassword != null) {
+        logger.info("[${project.displayName}] Signing is enabled")
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["mavenJava"])
+    } else {
+        logger.info("[${project.displayName}] No Signing keys found, skipping signing configuration")
+    }
+}
+
+// Publishing to the central sonatype portal currently requires the gradle nexus publishing plugin
+// Adds a `publishToSonatype` task
+val nexusUsername: Provider<String> = providers.gradleProperty("nexusUsername")
+val nexusPassword: Provider<String> = providers.gradleProperty("nexusPassword")
+
+nexusPublishing {
+    packageGroup.set("org.mongodb")
+    repositories {
+        sonatype {
+            username.set(nexusUsername)
+            password.set(nexusPassword)
+
+            // central portal URLs
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
+    }
+
+    connectTimeout.set(Duration.ofMinutes(5))
+    clientTimeout.set(Duration.ofMinutes(30))
+
+    transitionCheckOptions {
+        // We have many artifacts and Maven Central can take a long time on its compliance checks.
+        // Set the timeout for waiting for the repository to close to a comfortable 50 minutes.
+        maxRetries.set(300)
+        delayBetween.set(Duration.ofSeconds(10))
+    }
+}
+
+// Gets the git version
+val gitVersion: String by lazy {
+    providers
+        .exec {
+            isIgnoreExitValue = true
+            commandLine("git", "describe", "--tags", "--always", "--dirty")
+        }
+        .standardOutput
+        .asText
+        .map { it.trim().removePrefix("r") }
+        .getOrElse("UNKNOWN")
+}
+
+// Publish snapshots
+tasks.register("publishSnapshots") {
+    group = "publishing"
+    description = "Publishes snapshots to Sonatype"
+
+    if (version.toString().endsWith("-SNAPSHOT")) {
+        dependsOn(tasks.named("publishAllPublicationsToLocalBuildRepository"))
+        dependsOn(tasks.named("publishToSonatype"))
+    }
+}
+
+// Publish the release
+tasks.register("publishArchives") {
+    group = "publishing"
+    description = "Publishes a release and uploads to Sonatype / Maven Central"
+
+    val currentGitVersion = gitVersion
+    val gitVersionMatch = currentGitVersion == version
+    doFirst {
+        if (!gitVersionMatch) {
+            val cause =
+                """
+                Version mismatch:
+                =================
+
+                 $version != $currentGitVersion
+
+                 The project version does not match the git tag.
+                """
+                    .trimMargin()
+            throw GradleException(cause)
+        } else {
+            println("Publishing: ${project.name} : $currentGitVersion")
+        }
+    }
+    if (gitVersionMatch) {
+        dependsOn(tasks.named("publishAllPublicationsToLocalBuildRepository"))
+        dependsOn(tasks.named("publishToSonatype"))
     }
 }
