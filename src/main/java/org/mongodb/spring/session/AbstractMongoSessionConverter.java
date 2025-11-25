@@ -81,9 +81,21 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
         LOG.info("Creating TTL index on field " + EXPIRE_AT_FIELD_NAME);
 
-        sessionCollectionIndexes.createIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC)
-                .named(EXPIRE_AT_FIELD_NAME)
-                .expire(0));
+        try {
+            sessionCollectionIndexes.createIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC)
+                    .named(EXPIRE_AT_FIELD_NAME)
+                    .expire(0));
+        } catch (Exception e) {
+            // Handle the case where the index already exists (error code 85 for MongoCommandException)
+            if (e instanceof com.mongodb.MongoCommandException && ((com.mongodb.MongoCommandException) e).getErrorCode() == 85) {
+                LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (caught during creation)");
+            } else if (e instanceof org.springframework.dao.DuplicateKeyException) {
+                LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (DuplicateKeyException)");
+            } else {
+                // Unexpected error, rethrow
+                throw e;
+            }
+        }
     }
 
     @Nullable protected String extractPrincipal(MongoSession expiringSession) {
