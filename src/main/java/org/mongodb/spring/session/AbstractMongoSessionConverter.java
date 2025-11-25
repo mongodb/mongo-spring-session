@@ -132,6 +132,11 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
     @Nullable protected abstract MongoSession convert(Document sessionWrapper);
 
+    /**
+     * Sets the {@link IndexResolver} used to extract index values from sessions.
+     *
+     * @param indexResolver the index resolver to use; must not be {@code null}
+     */
     public void setIndexResolver(IndexResolver<Session> indexResolver) {
         Assert.notNull(indexResolver, "indexResolver must not be null");
         this.indexResolver = indexResolver;

@@ -76,6 +76,15 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 
     private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
+    /**
+     * Create and configure the {@link MongoIndexedSessionRepository} bean.
+     *
+     * <p>The repository will be configured with the configured converter, index resolver, collection name, session id
+     * generator and any registered repository customizers.
+     *
+     * @param mongoOperations the {@link MongoOperations} to use for repository persistence
+     * @return a configured {@link MongoIndexedSessionRepository} instance
+     */
     @Bean
     @SuppressWarnings("NullAway")
     public MongoIndexedSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
@@ -114,14 +123,30 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
         return repository;
     }
 
+    /**
+     * Set the collection name used to store sessions in MongoDB.
+     *
+     * @param collectionName the collection name to use
+     */
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }
 
+    /**
+     * Set the default maximum inactive interval for newly created sessions.
+     *
+     * @param maxInactiveInterval the max inactive interval to use
+     */
     public void setMaxInactiveInterval(Duration maxInactiveInterval) {
         this.maxInactiveInterval = maxInactiveInterval;
     }
 
+    /**
+     * Set the default maximum inactive interval in seconds.
+     *
+     * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+     * @deprecated use {@link #setMaxInactiveInterval(Duration)} instead
+     */
     @Deprecated
     @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
@@ -147,11 +172,21 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
         }
     }
 
+    /**
+     * Provide a custom {@link AbstractMongoSessionConverter} to use when serializing sessions.
+     *
+     * @param mongoSessionConverter the converter to use; may be {@code null} to use the default converter
+     */
     @Autowired(required = false)
     public void setMongoSessionConverter(AbstractMongoSessionConverter mongoSessionConverter) {
         this.mongoSessionConverter = mongoSessionConverter;
     }
 
+    /**
+     * Set customizers to be applied to the created {@link MongoIndexedSessionRepository}.
+     *
+     * @param sessionRepositoryCustomizers provider of repository customizers
+     */
     @Autowired(required = false)
     public void setSessionRepositoryCustomizers(
             ObjectProvider<SessionRepositoryCustomizer<MongoIndexedSessionRepository>> sessionRepositoryCustomizers) {
@@ -169,11 +204,21 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
         this.embeddedValueResolver = resolver;
     }
 
+    /**
+     * Set a custom {@link IndexResolver} to extract index values from sessions for indexing and querying.
+     *
+     * @param indexResolver the index resolver to set; may be {@code null} to use default behavior
+     */
     @Autowired(required = false)
     public void setIndexResolver(IndexResolver<Session> indexResolver) {
         this.indexResolver = indexResolver;
     }
 
+    /**
+     * Set the {@link SessionIdGenerator} to use when creating sessions.
+     *
+     * @param sessionIdGenerator the session id generator to use; must not be {@code null}
+     */
     @Autowired(required = false)
     public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
         this.sessionIdGenerator = sessionIdGenerator;

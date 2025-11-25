@@ -78,14 +78,26 @@ public final class MongoSession implements Session {
         this(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
     }
 
+    /** Constructs a new instance using the default max inactive interval and a generated session id. */
     public MongoSession() {
         this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
     }
 
+    /**
+     * Constructs a new instance using a generated session id and the provided max inactive interval.
+     *
+     * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+     */
     public MongoSession(long maxInactiveIntervalInSeconds) {
         this(UuidSessionIdGenerator.getInstance().generate(), maxInactiveIntervalInSeconds);
     }
 
+    /**
+     * Constructs a new instance using the provided session id and max inactive interval.
+     *
+     * @param id the session id to use
+     * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+     */
     public MongoSession(String id, long maxInactiveIntervalInSeconds) {
         this.id = id;
         this.originalSessionId = id;

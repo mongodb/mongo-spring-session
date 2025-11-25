@@ -81,6 +81,11 @@ public class MongoIndexedSessionRepository
 
     @Nullable private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
+    /**
+     * Creates a new {@link MongoIndexedSessionRepository} using the provided {@link MongoOperations}.
+     *
+     * @param mongoOperations the MongoOperations to use for session persistence
+     */
     public MongoIndexedSessionRepository(MongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
@@ -212,10 +217,20 @@ public class MongoIndexedSessionRepository
         setDefaultMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
     }
 
+    /**
+     * Sets the collection name to use for storing sessions.
+     *
+     * @param collectionName the collection name
+     */
     public void setCollectionName(final String collectionName) {
         this.collectionName = collectionName;
     }
 
+    /**
+     * Sets the session converter to use for serializing and deserializing sessions.
+     *
+     * @param mongoSessionConverter the session converter
+     */
     public void setMongoSessionConverter(final AbstractMongoSessionConverter mongoSessionConverter) {
         this.mongoSessionConverter = mongoSessionConverter;
     }

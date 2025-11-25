@@ -66,10 +66,23 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 
     private Duration maxInactiveInterval;
 
+    /**
+     * Creates a new {@link JdkMongoSessionConverter} using default Java (de)serialization converters.
+     *
+     * @param maxInactiveInterval the default max inactive interval used when deserializing sessions
+     */
     public JdkMongoSessionConverter(Duration maxInactiveInterval) {
         this(new SerializingConverter(), new DeserializingConverter(), maxInactiveInterval);
     }
 
+    /**
+     * Creates a new {@link JdkMongoSessionConverter} with explicit serializer and deserializer converters.
+     *
+     * @param serializer the serializer to convert attributes to bytes; must not be {@code null}
+     * @param deserializer the deserializer to convert bytes back to attributes; must not be {@code null}
+     * @param maxInactiveInterval the default max inactive interval used when deserializing sessions; must not be
+     *     {@code null}
+     */
     public JdkMongoSessionConverter(
             Converter<Object, byte[]> serializer,
             Converter<byte[], Object> deserializer,

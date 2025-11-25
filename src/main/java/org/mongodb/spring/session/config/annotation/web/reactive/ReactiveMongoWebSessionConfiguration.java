@@ -156,24 +156,50 @@ public class ReactiveMongoWebSessionConfiguration
         this.embeddedValueResolver = embeddedValueResolver;
     }
 
+    /**
+     * Returns the configured maximum inactive interval for sessions.
+     *
+     * @return the max inactive interval
+     */
     public Duration getMaxInactiveInterval() {
         return this.maxInactiveInterval;
     }
 
+    /**
+     * Sets the maximum inactive interval for sessions.
+     *
+     * @param maxInactiveInterval the max inactive interval to set
+     */
     public void setMaxInactiveInterval(Duration maxInactiveInterval) {
         this.maxInactiveInterval = maxInactiveInterval;
     }
 
+    /**
+     * Sets the maximum inactive interval in seconds for sessions.
+     *
+     * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+     * @deprecated use {@link #setMaxInactiveInterval(Duration)} instead
+     */
     @Deprecated
     @SuppressWarnings("InlineMeSuggester")
     public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
         setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
     }
 
+    /**
+     * Returns the configured collection name for storing sessions.
+     *
+     * @return the collection name, or {@code null} if not set
+     */
     @Nullable public String getCollectionName() {
         return this.collectionName;
     }
 
+    /**
+     * Sets the collection name to use for storing sessions.
+     *
+     * @param collectionName the collection name to set
+     */
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }

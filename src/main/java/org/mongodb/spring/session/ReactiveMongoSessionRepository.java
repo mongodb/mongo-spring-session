@@ -79,6 +79,11 @@ public class ReactiveMongoSessionRepository
 
     private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
+    /**
+     * Creates a new {@link ReactiveMongoSessionRepository} using the provided {@link ReactiveMongoOperations}.
+     *
+     * @param mongoOperations the ReactiveMongoOperations to use for session persistence
+     */
     public ReactiveMongoSessionRepository(ReactiveMongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
@@ -209,22 +214,47 @@ public class ReactiveMongoSessionRepository
         setDefaultMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
     }
 
+    /**
+     * Returns the collection name used for storing sessions.
+     *
+     * @return the collection name
+     */
     public String getCollectionName() {
         return this.collectionName;
     }
 
+    /**
+     * Sets the collection name to use for storing sessions.
+     *
+     * @param collectionName the collection name
+     */
     public void setCollectionName(final String collectionName) {
         this.collectionName = collectionName;
     }
 
+    /**
+     * Sets the session converter to use for serializing and deserializing sessions.
+     *
+     * @param mongoSessionConverter the session converter
+     */
     public void setMongoSessionConverter(final AbstractMongoSessionConverter mongoSessionConverter) {
         this.mongoSessionConverter = mongoSessionConverter;
     }
 
+    /**
+     * Sets the blocking {@link MongoOperations} to use for index creation.
+     *
+     * @param blockingMongoOperations the blocking MongoOperations
+     */
     public void setBlockingMongoOperations(final MongoOperations blockingMongoOperations) {
         this.blockingMongoOperations = blockingMongoOperations;
     }
 
+    /**
+     * Sets the {@link SessionIdGenerator} to use for generating session ids.
+     *
+     * @param sessionIdGenerator the session id generator
+     */
     public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
         Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
         this.sessionIdGenerator = sessionIdGenerator;

@@ -64,16 +64,27 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 
     private final ObjectMapper objectMapper;
 
+    /** Creates a new {@link JacksonMongoSessionConverter} with no additional modules registered. */
     public JacksonMongoSessionConverter() {
         this(Collections.emptyList());
     }
 
+    /**
+     * Creates a new {@link JacksonMongoSessionConverter} and registers the provided {@link Module}s.
+     *
+     * @param modules iterable of modules to register
+     */
     public JacksonMongoSessionConverter(Iterable<Module> modules) {
 
         this.objectMapper = buildObjectMapper();
         this.objectMapper.registerModules(modules);
     }
 
+    /**
+     * Creates a new {@link JacksonMongoSessionConverter} using the provided {@link ObjectMapper}.
+     *
+     * @param objectMapper the object mapper to use; must not be {@code null}
+     */
     public JacksonMongoSessionConverter(ObjectMapper objectMapper) {
 
         Assert.notNull(objectMapper, "ObjectMapper can NOT be null!");
