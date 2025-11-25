@@ -26,10 +26,7 @@ our [support channels](https://www.mongodb.com/docs/manual/support/). Please
 do not email any of the driver developers directly with issues or
 questions - you're more likely to get an answer on [StackOverflow](https://stackoverflow.com/questions/tagged/mongodb+java).
 
-At a minimum, please include in your description the exact version of the driver that you are using.  If you are having
-connectivity issues, it's often also useful to paste in the line of code where you construct the MongoClient instance,
-along with the values of all parameters that you pass to the constructor. You should also check your application logs for
-any connectivity-related exceptions and post those as well.
+At a minimum, please include in your description the exact version of the library and any dependencies that you are using.
 
 ## Bugs / Feature Requests
 
