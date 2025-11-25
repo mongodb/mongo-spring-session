@@ -15,7 +15,9 @@ specific solution. It also provides transparent integration with:
  * `WebSession` - allows replacing the Spring WebFlux's `WebSession` in an application container neutral way.
 
 ## Migrating from `spring-session-data-mongodb`
-Todo..
+
+The API namespace has changed from `org.springframework.session.data.mongo` to `org.mongodb.spring.session`.
+The rest of the classes remain the same.
 
 ## Support / Feedback
 
@@ -31,7 +33,7 @@ any connectivity-related exceptions and post those as well.
 
 ## Bugs / Feature Requests
 
-Think you’ve found a bug? Want to see a new feature in the drivers? Please open a
+Think you’ve found a bug? Want to see a new feature in the MongoDB Spring Session? Please open a
 case in our issue management tool, JIRA:
 
 - [Create an account and login](https://jira.mongodb.org).
@@ -40,7 +42,7 @@ case in our issue management tool, JIRA:
 
 Bug reports in JIRA for the extension and the Core Server (i.e. SERVER) project are **public**.
 
-If you’ve identified a security vulnerability in a driver or any other
+If you’ve identified a security vulnerability in the library or any other
 MongoDB project, please report it according to the [instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).
 
 ## Versioning
@@ -50,7 +52,7 @@ We follow [semantic versioning](https://semver.org/spec/v2.0.0.html) when releas
 ## Binaries
 
 Binaries and dependency information for Maven, Gradle, Ivy and others can be found at
-[https://central.sonatype.com/search](https://central.sonatype.com/search?namespace=org.mongodb&name=mongodb-driver-sync).
+[https://central.sonatype.com/search](https://central.sonatype.com/search?namespace=org.mongodb&name=mongo-spring-session).
 
 Example for Maven:
 
