@@ -87,7 +87,8 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
                     .expire(0));
         } catch (Exception e) {
             // Handle the case where the index already exists (error code 85 for MongoCommandException)
-            if (e instanceof com.mongodb.MongoCommandException && ((com.mongodb.MongoCommandException) e).getErrorCode() == 85) {
+            if (e instanceof com.mongodb.MongoCommandException
+                    && ((com.mongodb.MongoCommandException) e).getErrorCode() == 85) {
                 LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (caught during creation)");
             } else if (e instanceof org.springframework.dao.DuplicateKeyException) {
                 LOG.debug("TTL index on field " + EXPIRE_AT_FIELD_NAME + " already exists (DuplicateKeyException)");
