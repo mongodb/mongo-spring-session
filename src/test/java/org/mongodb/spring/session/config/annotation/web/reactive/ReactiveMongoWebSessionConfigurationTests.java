@@ -153,9 +153,22 @@ class ReactiveMongoWebSessionConfigurationTests {
         MongoOperations operations = this.context.getBean(MongoOperations.class);
         IndexOperations indexOperations = this.context.getBean(IndexOperations.class);
 
+        // First initialization: should call createIndex once
         verify(operations, times(1)).indexOps((String) any());
         verify(indexOperations, times(1)).getIndexInfo();
         verify(indexOperations, times(1)).createIndex(any());
+
+        // Simulate repeated initialization/configuration
+        this.context.close();
+        this.context = new AnnotationConfigApplicationContext();
+        this.context.register(ConfigWithReactiveAndImperativeMongoOperations.class);
+        this.context.refresh();
+
+        MongoOperations operations2 = this.context.getBean(MongoOperations.class);
+        IndexOperations indexOperations2 = this.context.getBean(IndexOperations.class);
+
+        // Should not call createIndex again (total calls should still be 1)
+        verify(indexOperations2, times(1)).createIndex(any());
     }
 
     @Test
