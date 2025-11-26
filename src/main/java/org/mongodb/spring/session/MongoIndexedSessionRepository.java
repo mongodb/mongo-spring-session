@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
-import org.springframework.lang.Nullable;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.SessionIdGenerator;
@@ -102,6 +102,7 @@ public class MongoIndexedSessionRepository
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public void save(MongoSession session) {
         DBObject dbObject = MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session);
         Assert.notNull(dbObject, "dbObject must not be null");

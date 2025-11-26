@@ -19,7 +19,7 @@
  *
  * @author Greg Turnquist
  */
-@NonNullApi
+@NullMarked
 package org.mongodb.spring.session;
 
-import org.springframework.lang.NonNullApi;
+import org.jspecify.annotations.NullMarked;

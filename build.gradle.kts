@@ -167,6 +167,8 @@ dependencies {
     api(platform(libs.spring.security.bom))
     api(libs.spring.security.core)
 
+    api(libs.jspecify)
+
     // Optional dependencies
     "optionalApi"(platform(libs.project.reactor.bom))
     "optionalApi"(libs.project.reactor.core)

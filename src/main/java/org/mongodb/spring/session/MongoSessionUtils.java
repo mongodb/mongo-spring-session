@@ -20,8 +20,8 @@ package org.mongodb.spring.session;
 import com.mongodb.ConnectionString;
 import com.mongodb.DBObject;
 import org.bson.Document;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.lang.Nullable;
 
 /**
  * Utility for MongoSession.

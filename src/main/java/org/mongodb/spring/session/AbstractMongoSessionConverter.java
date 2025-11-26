@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.domain.Sort;
@@ -30,7 +31,6 @@ import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexInfo;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.lang.Nullable;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.IndexResolver;
@@ -113,7 +113,7 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
     @SuppressWarnings("unchecked")
     @Override
-    @Nullable public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    @Nullable public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 
         if (source == null) {
             return null;

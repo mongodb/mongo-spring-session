@@ -28,12 +28,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
 import org.bson.types.Binary;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.lang.Nullable;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
@@ -157,7 +157,7 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
         return session;
     }
 
-    @Nullable private byte[] serializeAttributes(Session session) {
+    private byte[] serializeAttributes(Session session) {
 
         Map<String, Object> attributes = new HashMap<>();
 
@@ -165,10 +165,14 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
             attributes.put(attrName, session.getAttribute(attrName));
         }
 
-        return this.serializer.convert(attributes);
+        byte[] serialized = this.serializer.convert(attributes);
+        if (serialized == null) {
+            serialized = new byte[0];
+        }
+        return serialized;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "NullAway"})
     private void deserializeAttributes(Document sessionWrapper, Session session) {
 
         Object sessionAttributes = sessionWrapper.get(ATTRIBUTES);

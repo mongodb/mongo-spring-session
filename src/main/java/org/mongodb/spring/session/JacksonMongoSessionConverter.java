@@ -37,9 +37,9 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
@@ -102,6 +102,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
         }
     }
 
+    @SuppressWarnings("removal")
     private ObjectMapper buildObjectMapper() {
 
         ObjectMapper objectMapper = new ObjectMapper();

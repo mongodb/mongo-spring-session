@@ -58,9 +58,11 @@ class MongoRepositoryJacksonITest extends AbstractMongoRepositoryITest {
     // tag::sample[]
     @Configuration
     @EnableMongoHttpSession
+    @SuppressWarnings("SuppressWarningsDeprecated")
     static class Config extends BaseConfig {
 
         @Bean
+        @SuppressWarnings("removal")
         AbstractMongoSessionConverter mongoSessionConverter() {
             return new JacksonMongoSessionConverter(Collections.singletonList(new GeoModule()));
         }
