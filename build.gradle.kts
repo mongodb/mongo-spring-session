@@ -39,6 +39,7 @@ plugins {
     alias(libs.plugins.errorprone)
 }
 
+group = "org.mongodb"
 description = "Spring Session and Spring MongoDB integration"
 
 val testLatest: Boolean = System.getProperty("latest", "false").toBoolean()
@@ -282,8 +283,6 @@ publishing {
 
     publications {
         create<MavenPublication>("mavenJava") {
-            groupId = "org.mongodb"
-            artifactId = "mongodb-spring-session"
             from(components["java"])
             pom {
                 name = "MongoDB Spring Session extension"

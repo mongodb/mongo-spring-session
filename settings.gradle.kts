@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-rootProject.name = "mongo-spring-session"
+rootProject.name = "mongodb-spring-session"
