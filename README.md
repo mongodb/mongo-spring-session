@@ -55,14 +55,14 @@ We follow [semantic versioning](https://semver.org/spec/v2.0.0.html) when releas
 ## Binaries
 
 Binaries and dependency information for Maven, Gradle, Ivy and others can be found at
-[https://central.sonatype.com/search](https://central.sonatype.com/search?namespace=org.mongodb&name=mongo-spring-session).
+[https://central.sonatype.com/search](https://central.sonatype.com/search?namespace=org.mongodb&name=mongodb-spring-session).
 
 Example for Maven:
 
 ```xml
 <dependency>
     <groupId>org.mongodb</groupId>
-    <artifactId>mongo-spring-session</artifactId>
+    <artifactId>mongodb-spring-session</artifactId>
     <version>x.y.z</version>
 </dependency>
 ```
